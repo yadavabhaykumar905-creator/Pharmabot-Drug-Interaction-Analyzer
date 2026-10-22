@@ -3,9 +3,23 @@ import pandas as pd
 import numpy as np
 import joblib
 https://huggingface.co/abhay109/ddi_model/resolve/main/ddi_model.pkl
+import os
+import urllib.request
 
 
-model = joblib.load('ddi_model.pkl')
+model_path = 'ddi_model.pkl'
+
+if not os.path.exists(model_path):
+    with st.spinner("Downloading model from external link... Please wait."):
+        
+        url = "https://huggingface.co/abhay109/ddi_model/resolve/main/ddi_model.pkl"
+        urllib.request.urlretrieve(url, model_path)
+
+
+model = joblib.load(model_path)
+
+
+
 le_drug1 = joblib.load('le_drug1.pkl')
 le_drug2 = joblib.load('le_drug2.pkl')
 le_target = joblib.load('le_target.pkl')
