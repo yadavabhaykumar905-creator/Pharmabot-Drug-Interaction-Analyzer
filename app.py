@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
-https://huggingface.co/abhay109/ddi_model/resolve/main/ddi_model.pkl
 import os
 import urllib.request
 
