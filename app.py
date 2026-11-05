@@ -5,30 +5,45 @@ import joblib
 import os
 import urllib.request
 
-
-model_path = 'ddi_model.pkl'
-
-if not os.path.exists(model_path):
-    with st.spinner("Downloading model from external link... Please wait."):
-        
-        url = "https://huggingface.co/abhay109/ddi_model/resolve/main/ddi_model.pkl"
-        urllib.request.urlretrieve(url, model_path)
-
-
-model = joblib.load(model_path)
-
-
-
-le_drug1 = joblib.load('le_drug1.pkl')
-le_drug2 = joblib.load('le_drug2.pkl')
-le_target = joblib.load('le_target.pkl')
-
 st.set_page_config(
     page_title="Pharmabot AI: Drug Interaction Analyzer",
     page_icon="💊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Function to download files from Hugging Face if missing
+@st.cache_resource
+def load_artifacts():
+    base_url = "https://huggingface.co/abhay109/ddi_model/resolve/main/"
+    
+    files = {
+        'ddi_model.pkl': 'ddi_model.pkl',
+        'le_drug1.pkl': 'le_drug1.pkl',
+        'le_drug2.pkl': 'le_drug2.pkl',
+        'le_target.pkl': 'le_target.pkl'
+    }
+    
+    artifacts = {}
+    for filename, remote_name in files.items():
+        if not os.path.exists(filename):
+            with st.spinner(f"Downloading {filename} from Hugging Face..."):
+                url = base_url + remote_name
+                try:
+                    urllib.request.urlretrieve(url, filename)
+                except Exception as e:
+                    st.error(f"Failed to download {filename}: {e}")
+                    st.stop()
+        
+        artifacts[filename] = joblib.load(filename)
+        
+    return artifacts['ddi_model.pkl'], artifacts['le_drug1.pkl'], artifacts['le_drug2.pkl'], artifacts['le_target.pkl']
+
+try:
+    model, le_drug1, le_drug2, le_target = load_artifacts()
+except Exception as e:
+    st.error(f"Error loading model or encoders: {e}")
+    st.stop()
 
 st.markdown("""
     <style>
